@@ -1,0 +1,29 @@
+{
+    "name": "perryflynn/perrys-tags",
+    "type": "library",
+    "description": "Filter data by tags",
+    "license":"MIT",
+    "homepage":"https://github.com/perryflynn/PerrysTags",
+    "keywords": [ "php", "data", "tags", "filter" ],
+    "authors": [
+        {
+            "name": "Christian Blechert",
+            "email": "christian@anysrc.net",
+            "homepage": "https://anysrc.net",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues":"https://github.com/perryflynn/PerrysTags/issues"
+    },
+    "require": {
+        "php": ">=5.5.0",
+        "perryflynn/perrys-lambda": "~0.1"
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "PerrysTags\\": "src/PerrysTags/"
+        }
+    }
+}
