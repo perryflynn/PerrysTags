@@ -2,8 +2,6 @@
 
 namespace PerrysTags;
 
-use PerrysLambda\StringProperty;
-
 class TagSearch
 {
 

@@ -14,12 +14,12 @@ class TagSerializer extends Serializer
         {
             if($row instanceof Tag)
             {
-                $row = $row->getTagNamespace().Tag::NAMESPACETAGSEPARATOR.$row->getTagName();
+                $row = $row->getTagNamespace().Tag::NAMESPACETAGSEPARATOR.$row->getTagNameQuoted();
             }
             return true;
         };
 
-        $deserializer = function(&$row, &$key)
+        $deserializer = function(&$row, &$key, IItemConverter $converter)
         {
             if(is_string($row))
             {
@@ -30,6 +30,7 @@ class TagSerializer extends Serializer
                     $namespacename = strtolower(trim($matches[1]));
                     $tagname = strtolower(trim($matches[2]));
                     $row = Tag::newTag($namespacename, $tagname);
+                    $row->setConverter($converter);
                     return true;
                 }
                 return false;
