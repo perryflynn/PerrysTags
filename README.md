@@ -1,11 +1,13 @@
 
+[![Build Status](https://travis-ci.org/perryflynn/PerrysTags.svg?branch=master)](https://travis-ci.org/perryflynn/PerrysTags)
+
 PerrysTags ist eine PHP Bibliothek welche es ermöglichen soll, Daten nach Tags zu filtern.
 Sie ist so allgemein gehalten, dass sie sowohl mit Datenbanken als auch mit Datenstrukturen
 welche zur Programmlaufzeit erzeugt werden zurecht kommt.
 
 ## Status
 
-- In Entwicklung, keine lauffähige Version verfügbar
+- In Entwicklung, erste lauffähige Version
 - Docs nur in deutsch, muss noch in English umgesetzt werden
 
 ## Abhängigkeiten
@@ -97,3 +99,5 @@ array(5) {
   string(14) "condition:used"
 }
 ```
+
+Siehe Unit Tests für detailiertere Beispiele.
