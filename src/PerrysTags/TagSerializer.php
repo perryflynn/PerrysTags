@@ -30,7 +30,6 @@ class TagSerializer extends Serializer
                     $namespacename = strtolower(trim($matches[1]));
                     $tagname = strtolower(trim($matches[2]));
                     $row = Tag::newTag($namespacename, $tagname);
-                    $row->setConverter($converter);
                     return true;
                 }
                 return false;
