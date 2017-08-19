@@ -16,7 +16,12 @@ class TagSearchItem
         $this->tagname = $tagname;
     }
 
-    public function getIsRegex()
+    public function isEmpty()
+    {
+        return empty($this->namespace) && empty($this->tagname);
+    }
+
+    public function isRegex()
     {
         $temp = new StringProperty($this->tagname);
         return $temp->startsWith('^') || $temp->endsWith('$');
@@ -25,9 +30,9 @@ class TagSearchItem
     public function isMatch($namespace, $tagname)
     {
         $temp = new StringProperty($tagname);
-        return $namespace==$this->namespace &&
-            (($this->getIsRegex()===true && $temp->isMatch('/'.$this->tagname.'/')) ||
-            $this->tagname==$tagname);
+        return ($namespace==$this->namespace || empty($this->namespace)) &&
+            (($this->isRegex()===true && $temp->isMatch('/'.$this->tagname.'/')) ||
+            strpos($tagname, $this->tagname)!==false);
     }
 
 }

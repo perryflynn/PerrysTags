@@ -19,14 +19,10 @@ class TagSearch
 
     public function getIsMatch(Tag $tag)
     {
-        foreach($this->searchparams as $param)
+        return $this->searchparams->any(function(TagSearchItem $item) use($tag)
         {
-            if($param->isMatch($tag->getTagNamespace(), $tag->getTagName())===true)
-            {
-                return true;
-            }
-        }
-        return false;
+            return $item->isMatch($tag->getTagNamespace(), $tag->getTagName())===true;
+        });
     }
 
     protected function parseSearchString($str)
@@ -36,6 +32,31 @@ class TagSearch
         $imultiword = false;
         $istate = null;
         $ibuffer = null;
+
+        // Commit function
+        $commit = function($ibuffer) use(&$result)
+        {
+            if(!empty($ibuffer['namespace']) && empty($ibuffer['tagname']))
+            {
+                $ibuffer['tagname'] = $ibuffer['namespace'];
+                $ibuffer['namespace'] = null;
+            }
+
+            foreach($ibuffer as &$value)
+            {
+                if(is_string($value))
+                {
+                    $value = trim($value);
+                    if(empty($value))
+                    {
+                        $value = null;
+                    }
+                }
+            }
+            unset($value);
+
+            $result[] = $ibuffer;
+        };
 
         // Parse string
         $tempstr = trim($str);
@@ -64,9 +85,10 @@ class TagSearch
                 $istate = self::STATE_TAG;
             }
             // Commit buffer
-            else if($char===self::SEPARATOR && $imultiword===false)
+            else if($char===self::SEPARATOR && $imultiword===false &&
+                (!empty($ibuffer['namespace']) || !empty($ibuffer['tagname'])))
             {
-                $result[] = $ibuffer;
+                $commit($ibuffer);
                 $ibuffer=null;
                 $istate=null;
             }
@@ -82,7 +104,7 @@ class TagSearch
             }
         }
 
-        $result[] = $ibuffer;
+        $commit($ibuffer);
 
         // Create tagsearchitem objects
         foreach($result as &$item)
@@ -91,7 +113,9 @@ class TagSearch
         }
         unset($item);
 
-        return $result;
+        // Create ArrayList and filter empty items
+        return (new \PerrysLambda\ArrayList($result))
+            ->where(function(TagSearchItem $i) { return $i->isEmpty()===false; });
     }
 
 }

@@ -1,6 +1,5 @@
 <?php
 
-use PerrysTags\Tag;
 use PerrysTags\TagCollection;
 
 if (!class_exists('\PHPUnit\Framework\TestCase') &&
@@ -39,7 +38,7 @@ class BaseTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testBase()
+    protected function getCollection()
     {
         $collection = new TagCollection();
         foreach($this->getTagList() as $tag)
@@ -47,7 +46,12 @@ class BaseTest extends \PHPUnit\Framework\TestCase
             $collection->add($tag);
         }
 
-        $cleancol = $collection->tagDistict();
+        return $collection->tagDistict();
+    }
+
+    public function testBase()
+    {
+        $cleancol = $this->getCollection();
 
         $ns = array('language', 'country', 'color', 'condition');
         $this->assertEquals($ns, $cleancol->getTagNamespaces()->toArray());
@@ -59,10 +63,18 @@ class BaseTest extends \PHPUnit\Framework\TestCase
         $colorswithe = $cleancol->tagSearch('color:e$');
         $this->assertSame(array('blue', 'white', 'light orange'), $colorswithe->getTagNames()->toArray());
 
-        $blueamerica = $cleancol->tagSearch('color:blue country:"united states of america"');
+        $blueamerica = $cleancol->tagSearch('color:blue      country:"united states of america"');
 
         $blueamser = $blueamerica->select('toString')->joinString();
         $this->assertSame('country:"united states of america", color:blue', $blueamser);
+    }
+
+    public function testSeachPattern()
+    {
+        $collection = $this->getCollection();
+        $this->assertSame(array(), $collection->tagSearch('"hello world"')->serialize());
+        $this->assertEquals(array('language:german', 'country:germany', 'color:red', 'color:white'), $collection->tagSearch('german color:white color:^re')->serialize());
+        $this->assertEquals(array('condition:"slightly used"', 'condition:used'), $collection->tagSearch('used$')->serialize());
     }
 
 }
