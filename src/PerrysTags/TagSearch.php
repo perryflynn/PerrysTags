@@ -9,6 +9,7 @@ class TagSearch
     const STATE_TAG = 'tag';
     const MULTIWORD_CHAR = '"';
     const SEPARATOR = " ";
+    const REGEXMARKER_CHAR = '~';
 
     protected $searchparams;
 
@@ -22,6 +23,19 @@ class TagSearch
         return $this->searchparams->any(function(TagSearchItem $item) use($tag)
         {
             return $item->isMatch($tag->getTagNamespace(), $tag->getTagName())===true;
+        });
+    }
+
+    public function getItems()
+    {
+        return $this->searchparams;
+    }
+
+    public function getNoNamespaceItems()
+    {
+        return $this->getItems()->where(function(TagSearchItem $item)
+        {
+            return $item->hasNamespace()===false;
         });
     }
 
@@ -59,6 +73,8 @@ class TagSearch
         };
 
         // Parse string
+        $char = null;
+        $prevchar = null;
         $tempstr = trim($str);
         for($i=0; $i<mb_strlen($tempstr); $i++)
         {
@@ -70,6 +86,7 @@ class TagSearch
                 $ibuffer = array(
                     'namespace' => '',
                     'tagname' => '',
+                    'isregex' => false,
                 );
                 $istate = self::STATE_NS;
             }
@@ -83,6 +100,10 @@ class TagSearch
             else if($istate===self::STATE_NS && $char===Tag::NAMESPACETAGSEPARATOR)
             {
                 $istate = self::STATE_TAG;
+                if($prevchar===self::REGEXMARKER_CHAR)
+                {
+                    $ibuffer['isregex'] = true;
+                }
             }
             // Commit buffer
             else if($char===self::SEPARATOR && $imultiword===false &&
@@ -93,7 +114,7 @@ class TagSearch
                 $istate=null;
             }
             // Append to namespace
-            else if($istate===self::STATE_NS)
+            else if($istate===self::STATE_NS && $char!==self::REGEXMARKER_CHAR)
             {
                 $ibuffer['namespace'] .= $char;
             }
@@ -102,6 +123,8 @@ class TagSearch
             {
                 $ibuffer['tagname'] .= $char;
             }
+
+            $prevchar = $char;
         }
 
         $commit($ibuffer);
@@ -109,7 +132,7 @@ class TagSearch
         // Create tagsearchitem objects
         foreach($result as &$item)
         {
-            $item = new TagSearchItem($item['namespace'], $item['tagname']);
+            $item = new TagSearchItem($item['namespace'], $item['tagname'], $item['isregex']);
         }
         unset($item);
 

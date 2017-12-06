@@ -28,7 +28,7 @@ Folgende Aufgaben übernimmt PerrysLambda:
 - Alle verfügbaren Tags aus der MySQL Datenbank mit einem SELECT Statement auslesen.
   Zum Beispiel `SELECT tagname FROM tags GROUP BY tagname WHERE uid IN (SELECT tag_uid FROM content)`
 - Tags in den Objekttyp `TagCollection` importieren
-- Nach Tags suchen btw filtern
+- Nach Tags suchen bzw filtern
 - Liste vollständiger Tags in einer weiteren SQL Abfrage zum filtern der eigentlichen
   Daten verwenden
 
@@ -80,7 +80,7 @@ foreach($taglist as $tag)
 
 // Prints result of a search
 // Supports Regex
-var_dump($collection->tagSearch('country:"^united states" color:"e$" condition:used')->serialize());
+var_dump($collection->tagSearch('country~:"^united states" color~:"e$" condition:used')->getTags()->serialize());
 ```
 
 Ergebnis:

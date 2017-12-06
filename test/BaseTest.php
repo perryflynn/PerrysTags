@@ -40,12 +40,7 @@ class BaseTest extends \PHPUnit\Framework\TestCase
 
     protected function getCollection()
     {
-        $collection = new TagCollection();
-        foreach($this->getTagList() as $tag)
-        {
-            $collection->add($tag);
-        }
-
+        $collection = new TagCollection($this->getTagList());
         return $collection->tagDistict();
     }
 
@@ -60,21 +55,26 @@ class BaseTest extends \PHPUnit\Framework\TestCase
         $countries = $cleancol->getTagsByNamespace('country')->getTagNames()->toArray();
         $this->assertEquals($expcountries, $countries);
 
-        $colorswithe = $cleancol->tagSearch('color:e$');
-        $this->assertSame(array('blue', 'white', 'light orange'), $colorswithe->getTagNames()->toArray());
+        $colorswithe = $cleancol->tagSearch('color~:e$');
+        $this->assertSame(array('blue', 'white', 'light orange'), $colorswithe->getTags()->getTagNames()->toArray());
 
         $blueamerica = $cleancol->tagSearch('color:blue      country:"united states of america"');
 
-        $blueamser = $blueamerica->select('toString')->joinString();
+        $blueamser = $blueamerica->getTags()->select('toString')->joinString();
         $this->assertSame('country:"united states of america", color:blue', $blueamser);
     }
 
     public function testSeachPattern()
     {
         $collection = $this->getCollection();
-        $this->assertSame(array(), $collection->tagSearch('"hello world"')->serialize());
-        $this->assertEquals(array('language:german', 'country:germany', 'color:red', 'color:white'), $collection->tagSearch('german color:white color:^re')->serialize());
-        $this->assertEquals(array('condition:"slightly used"', 'condition:used'), $collection->tagSearch('used$')->serialize());
+
+        $this->assertSame(array("hello world"), $collection->tagSearch('"hello world"')->getPatterns()->toArray());
+        $this->assertSame(array("german", "hello world"), $collection->tagSearch('german "hello world" color:white color~:^re')->getPatterns()->toArray());
+
+        $this->assertSame(array(), $collection->tagSearch('"hello world"')->getTags()->serialize());
+        $this->assertEquals(array('language:german', 'country:germany', 'color:red', 'color:white'), $collection->tagSearch('german color:white color~:^re')->getTags()->serialize());
+        $this->assertEquals(array('language:german', 'country:germany', 'color:red', 'color:white'), $collection->tagSearch('GeRmAn color:whiTE color~:^RE')->getTags()->serialize());
+        $this->assertEquals(array('condition:"slightly used"', 'condition:used'), $collection->tagSearch('~:used$')->getTags()->serialize());
     }
 
 }

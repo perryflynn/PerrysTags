@@ -26,6 +26,14 @@ class TagCollection extends ArrayList
         }
     }
 
+    public function addRange(array $data)
+    {
+        foreach($data as $item)
+        {
+            $this->add($item);
+        }
+    }
+
     public function getIsValidValue($value)
     {
         return $value instanceof Tag;
@@ -66,10 +74,12 @@ class TagCollection extends ArrayList
     public function tagSearch($pattern)
     {
         $search = new TagSearch($pattern);
-        return $this->where(function(Tag $tag) use($search)
+        $tags =  $this->where(function(Tag $tag) use($search)
         {
             return $search->getIsMatch($tag)===true;
         });
+
+        return new TagSearchResult($tags, $search->getNoNamespaceItems()->select('getTagname'));
     }
 
     /**

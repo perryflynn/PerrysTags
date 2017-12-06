@@ -50,4 +50,4 @@ var_dump($cleancol->serialize());
 var_dump($cleancol->getTagNamespaces()->toArray());
 
 // Prints result of a search
-var_dump($cleancol->tagSearch('country:"^united states" color:"e$" condition:used')->serialize());
+var_dump($cleancol->tagSearch('country~:"^united states" color~:"e$" condition:used')->getTags()->serialize());
